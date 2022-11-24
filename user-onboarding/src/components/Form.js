@@ -4,15 +4,20 @@ import React from 'react'
 export default function Form(props) {
   const {
     values,
-    submit,
+    setValues,
+    submitHandlers: {putNewCard, formSubmit },
     change,
     disabled,
     errors,
+    cardlist
   } = props
 
+  
   const onSubmit = evt => {
     evt.preventDefault()
-    submit()
+    cardlist.id
+      ? putNewCard(cardlist)
+      : formSubmit()
   }
 
   const onChange = evt => {
@@ -28,7 +33,7 @@ export default function Form(props) {
       <div className='form-group submit'>
         <h2>Spill The Tea</h2>
 
-        <button disabled={disabled}>submit</button>
+        <button id="submitBtn" disabled={disabled}>submit</button>
 
         <div className='errors'>
           <div>{errors.firstName}</div>
@@ -86,6 +91,7 @@ export default function Form(props) {
             onChange={onChange}
             value={values.role}
             name='role'
+            id="roleSelect"
           >
             <option value=''>- Select an option -</option>
             <option value='Bears'>Bears</option>

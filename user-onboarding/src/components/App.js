@@ -7,6 +7,10 @@ import * as yup from "yup";
 import '../App.css';
 
 
+
+
+//disable the submit button and enable the submit button?
+
 const initialFormValues = {
   firstName: '',
   lastName: '',
@@ -16,6 +20,7 @@ const initialFormValues = {
   happy: false,
   educated: false,
   mentallystable: false,
+  id: ''
 }
 const initialFormErrors = {
   firstName: '',
@@ -33,7 +38,11 @@ export default function App() {
   const [formValues, setFormValues] = useState(initialFormValues) // object
   const [formErrors, setFormErrors] = useState(initialFormErrors) // object
   const [disabled, setDisabled] = useState(initialDisabled)       // boolean
+  const handleError = err => {debugger};
 
+  const resetForm = () => {
+    setFormValues(initialFormValues);
+  }
 
   const postNewCard = newCard => {
     axios.post("https://reqres.in/api/users", newCard)
@@ -43,6 +52,19 @@ export default function App() {
     })
     .catch(err => console.error(err))
     .finally(() => setFormValues(initialFormValues))
+  }
+
+  const putNewCard = ({ card, id }) => {
+    axios.put(`https://reqres.in/api/users/${id}`)
+    .then(res => {
+      setCards(cards.map(card => {
+        return card.id === id ? res.data : card;
+        console.log(card);
+      }))
+     console.log(id);
+    })
+    .catch(handleError)
+    .finally(resetForm)
   }
 
   const handleChecked = () => {
@@ -81,11 +103,16 @@ export default function App() {
     console.log(newCard);
   }
 
+  const editUser = (id) => {
+    const user = cards.find(card => card.id === id)
+    setFormValues({...user })
+  }
 
-  useEffect(() => {
-    //getFriends();
-    postNewCard();
-  }, [])
+
+  // useEffect(() => {
+  //   //getFriends();
+  //   postNewCard();
+  // }, [])
 
 
   useEffect(() => {
@@ -97,18 +124,24 @@ export default function App() {
       <header><h1>Form Practice</h1></header>
 
       <Form
+        cardlist={cards}
         values={formValues}
+        setValues={setFormValues}
         change={onChange}
-        submit={formSubmit}
+        submitHandlers={{ formSubmit, putNewCard }}
         disabled={disabled}
         errors={formErrors}
         checkChange={handleChecked}
+        rest={resetForm}
       />
 
       {
-        cards.map(card => {
+        cards.map((card, index) => {
           return (
+            <>
             <User key={card.id} details={card} />
+            <button data-cy={`editBtn${index}`} onClick={() => editUser(card.id)}>Edit User</button>
+            </>
           )
         })
       }
